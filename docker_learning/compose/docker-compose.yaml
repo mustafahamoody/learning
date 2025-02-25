@@ -1,0 +1,74 @@
+# First Specify Version
+# Version: "4.38.0"
+
+# Services are all the containers to run
+services:
+  scheduler:
+  # Specify path to docker file
+    build: scheduler/.
+    ports:
+      - "81:80"
+    
+    profiles:
+      - scheduling_services
+  
+  # Define Service with any name
+  storefront:
+
+  # Specify build arguments
+    build:
+      context: . # Path to dockerfile
+      args:   #Build Argument
+        - region=US 
+    ports:
+      - "80:80"
+      - "443:443"
+
+  # Specify Env Variables
+    environment:
+      - runtime_env=dev
+
+  # Specify dependancies --> start up order: will start database before starting storefront
+    depends_on:
+      - database
+
+    profiles:
+      - storefront_services
+
+
+  database:
+  # Or use image to specify an image -- Will pull form dockerhub
+    image: "mysql:${TAG}" #Adds modifiable env var TAG
+
+    # Specify Path to Env files where Env Variables are stored
+    env_file:
+      - mysql/env_vars
+
+    # specify volume
+    volumes:
+    # Source dir in host : Target dir in container : Access Mode (rw, ro)
+      - ./mysql:/var/lib/mysql:ro 
+  
+
+  # Creating a named volume -- Should always use named volume - So that docker dosen't create a new volume each time (Instead copies data from old to new vol)
+  volumes:
+    keneteco:
+
+
+    
+
+#Commands:
+# - docker-compose up [service] [--profile] -- starts all containers [or just that service/profile and its depenedcies] 
+# - docker-compose down [service] [--profile] -- kills and removes all containers [or just that service/profile and its depenedcies] 
+# - docker-compose stop [service] [--profile] -- kills all containers
+# - docker-compose rm [service] [--profile] -- removes all containers 
+# - docker-compose restat [service] [--profile] -- Runs stop, then up 
+
+# Note: docker-compose up will only run services that are in the default profile
+# - A container with no profile will be run by every other profile  
+
+# Overide Files
+# - compose files that inharent from the main compose file but overide the specified parameters
+# - Ex. development, staging overides
+# - Note: All filepaths must be relative to the main compose file
+# - Run: docker-compose -f main -f ovveride [cmd] ...

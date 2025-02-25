@@ -1,0 +1,20 @@
+[0.708s] Invoking command in '/home/mustafa/ros2_ws/build/my_robot_controller': CONDA_PROMPT_MODIFIER=(base) DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTHONPATH=/home/mustafa/ros2_ws/build/my_robot_controller/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/mustafa/ros2_ws/install/my_robot_controller/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/mustafa/ros2_ws/build/my_robot_controller/build --no-deps symlink_data
+[0.909s] running develop
+[1.022s] running egg_info
+[1.033s] writing my_robot_controller.egg-info/PKG-INFO
+[1.041s] writing dependency_links to my_robot_controller.egg-info/dependency_links.txt
+[1.041s] writing entry points to my_robot_controller.egg-info/entry_points.txt
+[1.041s] writing requirements to my_robot_controller.egg-info/requires.txt
+[1.042s] writing top-level names to my_robot_controller.egg-info/top_level.txt
+[1.063s] reading manifest file 'my_robot_controller.egg-info/SOURCES.txt'
+[1.064s] writing manifest file 'my_robot_controller.egg-info/SOURCES.txt'
+[1.077s] running build_ext
+[1.077s] Creating /home/mustafa/ros2_ws/install/my_robot_controller/lib/python3.12/site-packages/my-robot-controller.egg-link (link to .)
+[1.077s] Installing draw_circle script to /home/mustafa/ros2_ws/install/my_robot_controller/lib/my_robot_controller
+[1.077s] Installing pose_subscriber script to /home/mustafa/ros2_ws/install/my_robot_controller/lib/my_robot_controller
+[1.078s] Installing test_node script to /home/mustafa/ros2_ws/install/my_robot_controller/lib/my_robot_controller
+[1.078s] Installing turtle_controller script to /home/mustafa/ros2_ws/install/my_robot_controller/lib/my_robot_controller
+[1.078s] 
+[1.078s] Installed /home/mustafa/ros2_ws/build/my_robot_controller
+[1.078s] running symlink_data
+[1.101s] Invoked command in '/home/mustafa/ros2_ws/build/my_robot_controller' returned '0': CONDA_PROMPT_MODIFIER=(base) DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTHONPATH=/home/mustafa/ros2_ws/build/my_robot_controller/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/mustafa/ros2_ws/install/my_robot_controller/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/mustafa/ros2_ws/build/my_robot_controller/build --no-deps symlink_data
