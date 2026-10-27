@@ -51,6 +51,11 @@ begin
         wait until rising_edge(clk);
         rst_n <= '1';
 
+        -- Wait 3 cycles for rst_n to be deasseted (2-3 cycle delay from synchronizer)
+        wait until rising_edge(clk);
+        wait until rising_edge(clk);
+        wait until rising_edge(clk);
+
         -- Pulse Start for 1 cycle
         start <= '1';
         wait until rising_edge(clk);
@@ -84,6 +89,9 @@ begin
         
         -- Report tests passed and stop simulation
         report "ALL TESTS PASSED";
+        for i in 1 to 3 loop              -- a few extra cycles for the waveform
+            wait until rising_edge(clk);
+        end loop;
         std.env.finish; 
     end process;
 end architecture;

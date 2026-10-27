@@ -1,0 +1,37 @@
+[*]
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Mon Oct 26 15:36:08 2026
+[*]
+[dumpfile] "/home/mustafa/learning/vhdl/avgN/avg4.ghw"
+[dumpfile_mtime] "Mon Oct 26 15:24:12 2026"
+[dumpfile_size] 1200
+[savefile] "/home/mustafa/learning/vhdl/avgN/avg4.gtkw"
+[timestart] 0
+[size] 1000 600
+[pos] -530 -34
+*-23.611950 2170000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] top.
+[treeopen] top.tb_avg4.
+[treeopen] top.tb_avg4.dut.
+[treeopen] top.tb_avg4.dut.datapath.
+[sst_width] 276
+[signals_width] 134
+[sst_expanded] 1
+[sst_vpaned_height] 157
+@24
+top.tb_avg4.dut.clk
+top.tb_avg4.dut.rst_n
+top.tb_avg4.dut.rst_n_sync
+top.tb_avg4.dut.start
+#{top.tb_avg4.dut.din[7:0]} top.tb_avg4.dut.din[7] top.tb_avg4.dut.din[6] top.tb_avg4.dut.din[5] top.tb_avg4.dut.din[4] top.tb_avg4.dut.din[3] top.tb_avg4.dut.din[2] top.tb_avg4.dut.din[1] top.tb_avg4.dut.din[0]
+top.tb_avg4.dut.control.current_state
+top.tb_avg4.dut.control.clr
+top.tb_avg4.dut.control.running
+#{top.tb_avg4.dut.datapath.cnt_reg[1:0]} top.tb_avg4.dut.datapath.cnt_reg[1] top.tb_avg4.dut.datapath.cnt_reg[0]
+#{top.tb_avg4.dut.datapath.acc_reg[9:0]} top.tb_avg4.dut.datapath.acc_reg[9] top.tb_avg4.dut.datapath.acc_reg[8] top.tb_avg4.dut.datapath.acc_reg[7] top.tb_avg4.dut.datapath.acc_reg[6] top.tb_avg4.dut.datapath.acc_reg[5] top.tb_avg4.dut.datapath.acc_reg[4] top.tb_avg4.dut.datapath.acc_reg[3] top.tb_avg4.dut.datapath.acc_reg[2] top.tb_avg4.dut.datapath.acc_reg[1] top.tb_avg4.dut.datapath.acc_reg[0]
+top.tb_avg4.dut.control.last_sample
+top.tb_avg4.dut.control.valid
+@25
+#{top.tb_avg4.avg_out[7:0]} top.tb_avg4.avg_out[7] top.tb_avg4.avg_out[6] top.tb_avg4.avg_out[5] top.tb_avg4.avg_out[4] top.tb_avg4.avg_out[3] top.tb_avg4.avg_out[2] top.tb_avg4.avg_out[1] top.tb_avg4.avg_out[0]
+[pattern_trace] 1
+[pattern_trace] 0

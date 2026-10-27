@@ -18,14 +18,23 @@ entity avgN_top is
     end entity;
 
 architecture rtl of avgN_top is 
-    signal clr, running, last_sample : std_logic;
+    signal rst_n_sync, clr, running, last_sample : std_logic;
 
 begin
+    reset : entity work.rst_n_synchronizer
+        port map(
+            --inputs
+            rst_n_async => rst_n,
+            clk => clk,
+
+            -- outputs
+            rst_n_sync => rst_n_sync
+        );
     control : entity work.avgN_control
         port map(
             -- inputs
             clk => clk,
-            rst_n => rst_n,
+            rst_n => rst_n_sync,
             start => start,
             last_sample => last_sample,
 

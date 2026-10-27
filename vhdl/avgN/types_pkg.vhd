@@ -1,4 +1,4 @@
--- Make paked array for each channel (Still systhesises to one big bus, but cleaner to write)
+-- Make paked array for each channel, for multi avg N (Still systhesises to one big bus, but cleaner to write)
 
 library ieee;
 use ieee.std_logic_1164.all;

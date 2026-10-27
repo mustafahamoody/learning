@@ -1,0 +1,36 @@
+[*]
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Tue Oct 27 01:40:29 2026
+[*]
+[dumpfile] "/home/mustafa/learning/vhdl/avgN/avgN.ghw"
+[dumpfile_mtime] "Tue Oct 27 01:32:49 2026"
+[dumpfile_size] 1691
+[savefile] "/home/mustafa/learning/vhdl/avgN/avgN.gtkw"
+[timestart] 0
+[size] 1000 600
+[pos] 842 144
+*-25.364023 0 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] top.
+[treeopen] top.tb_avgn.
+[treeopen] top.tb_avgn.dut.
+[treeopen] top.tb_avgn.dut.datapath.
+[sst_width] 276
+[signals_width] 134
+[sst_expanded] 1
+[sst_vpaned_height] 157
+@25
+top.tb_avgn.clk
+top.tb_avgn.rst_n
+top.tb_avgn.dut.reset.rst_n_sync
+top.tb_avgn.dut.start
+#{top.tb_avgn.din[9:0]} top.tb_avgn.din[9] top.tb_avgn.din[8] top.tb_avgn.din[7] top.tb_avgn.din[6] top.tb_avgn.din[5] top.tb_avgn.din[4] top.tb_avgn.din[3] top.tb_avgn.din[2] top.tb_avgn.din[1] top.tb_avgn.din[0]
+top.tb_avgn.dut.control.current_state
+top.tb_avgn.dut.control.clr
+top.tb_avgn.dut.control.running
+#{top.tb_avgn.dut.datapath.cnt_reg[2:0]} top.tb_avgn.dut.datapath.cnt_reg[2] top.tb_avgn.dut.datapath.cnt_reg[1] top.tb_avgn.dut.datapath.cnt_reg[0]
+#{top.tb_avgn.dut.datapath.acc_reg[12:0]} top.tb_avgn.dut.datapath.acc_reg[12] top.tb_avgn.dut.datapath.acc_reg[11] top.tb_avgn.dut.datapath.acc_reg[10] top.tb_avgn.dut.datapath.acc_reg[9] top.tb_avgn.dut.datapath.acc_reg[8] top.tb_avgn.dut.datapath.acc_reg[7] top.tb_avgn.dut.datapath.acc_reg[6] top.tb_avgn.dut.datapath.acc_reg[5] top.tb_avgn.dut.datapath.acc_reg[4] top.tb_avgn.dut.datapath.acc_reg[3] top.tb_avgn.dut.datapath.acc_reg[2] top.tb_avgn.dut.datapath.acc_reg[1] top.tb_avgn.dut.datapath.acc_reg[0]
+top.tb_avgn.dut.control.last_sample
+top.tb_avgn.dut.control.valid
+#{top.tb_avgn.avg_out[9:0]} top.tb_avgn.avg_out[9] top.tb_avgn.avg_out[8] top.tb_avgn.avg_out[7] top.tb_avgn.avg_out[6] top.tb_avgn.avg_out[5] top.tb_avgn.avg_out[4] top.tb_avgn.avg_out[3] top.tb_avgn.avg_out[2] top.tb_avgn.avg_out[1] top.tb_avgn.avg_out[0]
+[pattern_trace] 1
+[pattern_trace] 0

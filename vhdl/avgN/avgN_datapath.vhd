@@ -20,6 +20,7 @@ end entity;
 
 architecture rtl of avgN_datapath is
     constant ACC_WIDTH : positive := DATA_WIDTH + LOG2_SAMPLES; -- With adder carry, max bit size of result is N + log2(K)
+        -- constant LAST_SAMPLE_NUM : positive := 2**LOG2_SAMPLES; -- Purpose Mistake to use waveform to debug (last sample num=4, which should be 3 in 2 bin counter)
     constant LAST_SAMPLE_NUM : positive := 2**LOG2_SAMPLES - 1;
     
     signal acc_reg : unsigned(ACC_WIDTH-1 downto 0);
