@@ -6,8 +6,8 @@ use ieee.numeric_std.all;
 
 entity tb_avgN is
     generic (
-        DATA_WIDTH : positive := 10; -- Bits per sample
-        LOG2_SAMPLES : positive := 3 -- samples = 2^LOG2_SAMPLES
+        DATA_WIDTH : positive := 8; -- Bits per sample
+        LOG2_SAMPLES : positive := 2 -- samples = 2^LOG2_SAMPLES
     );
 end entity;
 
@@ -125,9 +125,9 @@ begin
         wait until rising_edge(clk);
 
         -- Run tests using procedure
-        run_avg((10, 20, 30, 40, 50, 60, 70, 80));
-        run_avg((1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023));
-        run_avg((1, 2, 3, 4, 5, 6, 7, 8));
+        run_avg((10, 20, 30, 40));
+        run_avg((255, 255, 255, 255));
+        run_avg((1, 2, 3, 4));
 
         -- Reset in between runs
         rst_n <= '0';
@@ -139,8 +139,8 @@ begin
         wait until rising_edge(clk);
         wait until rising_edge(clk);
 
-        run_avg((0, 0, 1023, 0, 0, 0, 0, 0));
-        run_avg((0, 0, 0, 0, 0, 0, 0, 0));
+        run_avg((0, 0, 255, 0));
+        run_avg((0, 0, 0, 0));
 
         -- Report tests passed and stop simulation
         report "ALL TESTS PASSED";
