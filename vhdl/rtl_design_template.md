@@ -123,16 +123,25 @@ A loop sets a hard floor on the period: period ≥ loop logic levels + flop over
   - Check in the flow that the ICGs were actually inserted (F3).
 - Steps:
   -   i) Registers holding their value while idle (and their size = #FFs)
-  -   ii) "en" signal to gate register with (If none, that reg can't be gated - Or an enable signal should be added if appropereate)
+  -   ii) "en" signal to gate register with (If none, that reg can't be gated - Or an enable signal should be added if appropriate)
   -   iii) Worth Gating? (More than a few flops, or free from gating other regs with same signal)
-- **Operand isolation (stops the data):** expensive logic (multipliers, wide adders) whose inputs keep moving while idle → freeze its inputs:
+    
+- **Operand isolation (stops the data):** expensive logic (multipliers, wide adders) whose inputs keep moving while idle → freeze its inputs
+- Methods
   - an enabled input register (often already there → free, and it's clock-gated too)
   - AND the inputs with the enable (N gates of area, +1 logic level, no extra cycle) → re-price that path in Step 8, including the block after the AND
   - at the source (don't drive a bus or read memory when nobody needs it)
   - Not worth it for cheap logic, or logic whose inputs already sit still.
+ 
+- Steps:
+  -   i) Operations list
+  -   ii) For ea. operation, does input change when idle
+  -   iii) Gating Method 
+    
 - **Pipelines:** give each stage its own enable = valid delayed to that stage (one flop per stage).
   - Each stage's enable is a control signal crossing the line: it follows the Vertical Line Rule (Step 9), or it's off by one.
-  - Those valid flops need a reset.
+  - Those valid flops need a reset as well.
+  
 - **Other habits:** don't update rarely-read registers every cycle · narrower widths · only reset what needs it · Gray code for constantly-ticking, high-fanout counters.
 - **When:** architecture choices (data movement, memory reads, widths, voltage) first; these habits always; fine-tune only after measuring (power report).
 
