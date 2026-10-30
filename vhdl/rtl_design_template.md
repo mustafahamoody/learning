@@ -18,7 +18,7 @@
 - Give every integer a range (no range = 32 bits).
 
 **Step 4: Change rules.** For each register, list every way it can change, and when, in plain words. Always end with "otherwise: hold." Each register's rules become its mux chain (first rule = mux closest to the FF).
-- "Otherwise: hold" = an enable. Registers written this way are clock-gate-ready (Step 7 power check).
+- "Otherwise: hold" = an enable. Registers written this way are clock-gate-ready (Step 11 power check).
 
 **Step 5: Classify each "when."** This is where signals are born:
 - Depends on **data** (a comparison, a count reaching a value)? → a **status** signal from the datapath
@@ -34,16 +34,6 @@ Tip: if a rule can't be written in plain words, the spec isn't pinned down yet �
 - FSM: flops = ⌈log₂ states⌉; each output Moore or Mealy; no Mealy output leaves the module; size of the next-state logic.
 - Any flag that says "result ready" → check the result's registers have actually been written by then.
 - **Reset:** only control needs a reset (FSM, valid/done, pipeline regs feeding control); the datapath gets cleared by `clr`. **ASIC:** add a reset synchronizer module at the top (async assert, sync deassert), one per clock domain. Every block's reset uses its output.
-- **Power check:** dynamic power only burns when things flip. For each block, ask: is it often idle, and does its clock or its input keep moving while idle?
-  - **Clock gating (stops the clock):** wide register banks that share an enable and sit idle → write them as enable RTL (`if en then reg <= d; end if;`, no else) and synthesis swaps the hold muxes for one ICG. Not worth it for single flops, registers that load every cycle, or small FSMs. A whole idle block → one coarse ICG via a `clock_gate` wrapper (also stops its clock-tree branch). Never `clk and en`.
-  - **Operand isolation (stops the data):** expensive logic (multipliers, wide adders) whose inputs keep moving while idle → freeze its inputs:
-    - an enabled input register (often already there → free, and it's clock-gated too)
-    - AND the inputs with the enable (N gates of area, +1 logic level, no extra cycle)
-    - at the source (don't drive a bus or read memory when nobody needs it)
-    - Not worth it for cheap logic, or logic whose inputs already sit still.
-  - **Pipelines:** give each stage its own enable = valid delayed to that stage (one flop per stage). Those valid flops need a reset.
-  - **Other habits:** don't update rarely-read registers every cycle · narrower widths · only reset what needs it · Gray code for constantly-ticking, high-fanout counters.
-  - **When:** architecture choices (data movement, memory reads, widths, voltage) first; these habits always; fine-tune only after measuring (power report).
 
 ## Timing
 
@@ -95,7 +85,7 @@ Where to add registers (3 rules, in priority):
 
 **Vertical Line Rule (Latency Matching):** draw a vertical line through the design at the new reg. Every wire crossing the line needs a FF too, so the cycles stay aligned.
 - Never draw the line through a loop (a reg feeding back to itself, like a counter or accumulator). A FF in a loop breaks the logic.
-- Every path into the same endpoint (except loops) must cross the same number of new registers, including control signals like valid/done and each stage's enable.
+- Every path into the same endpoint (except loops) must cross the same number of new registers, including control signals like valid/done.
 - Where you cut along a wire doesn't matter. Cutting before a split costs 1 FF; cutting after it costs 1 FF per branch.
 - Constants don't cross (they're just tied-off wires).
 - A delay is always a FF, never a chain of gates.
@@ -118,12 +108,32 @@ A loop sets a hard floor on the period: period ≥ loop logic levels + flop over
      - You can accept less precision (drop low bits before the loop; changes the result, only if the spec allows).
    - **Interleave** (advanced, accelerator track).
 
-**Step 11: Code.** Ports from Step 1, registers from Step 3, signals from Step 5, FSM from Step 6, pipeline registers and enables from Steps 7, 9–10. Nothing new should appear here. Check each line against the spec.
+## Power
+
+**Step 11: Power check.** Dynamic power only burns when things flip. For each block, ask: is it often idle, and does its clock or its input keep moving while idle?
+- **Clock gating (stops the clock):** wide register banks that share an enable and sit idle → write them as enable RTL (`if en then reg <= d; end if;`, no else) and synthesis swaps the hold muxes for one ICG.
+  - Not worth it for single flops, registers that load every cycle, or small FSMs.
+  - A whole idle block → one coarse ICG via a `clock_gate` wrapper (also stops its clock-tree branch). Never `clk and en`.
+  - Check in the flow that the ICGs were actually inserted (F3).
+- **Operand isolation (stops the data):** expensive logic (multipliers, wide adders) whose inputs keep moving while idle → freeze its inputs:
+  - an enabled input register (often already there → free, and it's clock-gated too)
+  - AND the inputs with the enable (N gates of area, +1 logic level, no extra cycle) → re-price that path in Step 8, including the block after the AND
+  - at the source (don't drive a bus or read memory when nobody needs it)
+  - Not worth it for cheap logic, or logic whose inputs already sit still.
+- **Pipelines:** give each stage its own enable = valid delayed to that stage (one flop per stage).
+  - Each stage's enable is a control signal crossing the line: it follows the Vertical Line Rule (Step 9), or it's off by one.
+  - Those valid flops need a reset.
+- **Other habits:** don't update rarely-read registers every cycle · narrower widths · only reset what needs it · Gray code for constantly-ticking, high-fanout counters.
+- **When:** architecture choices (data movement, memory reads, widths, voltage) first; these habits always; fine-tune only after measuring (power report).
+
+## Code
+
+**Step 12: Code.** Ports from Step 1, registers from Step 3, signals from Step 5, FSM from Step 6, pipeline registers from Steps 9–10, enables and isolation from Step 11. Nothing new should appear here. Check each line against the spec.
 - Variables in a clocked process: write before read, on every path, or they become flops.
 
 ## Verification
 
-**Step 12: Testbench.** Test the spec, not the code.
+**Step 13: Testbench.** Test the spec, not the code.
 
 Structure:
 - No ports. Clock: `clk <= not clk after 5 ns;` (start it at '0'). Initialize inputs, not outputs.
@@ -154,7 +164,8 @@ What to test (derive it from the template):
 | 5. Status signals | each threshold exactly, one below, one above |
 | 6. FSM | every transition; every input in every state |
 | 7. Hardware check | reset in the middle of an operation, then a clean run; result valid exactly when the flag says so |
-| 9–10. Pipelines | full throughput, bubbles (gaps), draining, enables lined up with data |
+| 9–10. Pipelines | full throughput, bubbles (gaps), draining |
+| 11. Power | enables lined up with data |
 | Generics | smallest, default, and a large configuration |
 
 - **Values:** boundaries (0, 1, max − 1, max); distinct values per channel/stage/sample so swaps show; bit patterns (all ones, `1010…`, walking 1); random against the reference model.
