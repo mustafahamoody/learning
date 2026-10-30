@@ -121,10 +121,10 @@ A loop sets a hard floor on the period: period ≥ loop logic levels + flop over
   - Not worth it for single flops, registers that load every cycle, or small FSMs.
   - A whole idle block → one coarse ICG via a `clock_gate` wrapper (also stops its clock-tree branch). Never `clk and en`.
   - Check in the flow that the ICGs were actually inserted (F3).
-    Steps:
-  i) Registers holding their value while idle (and their size = #FFs)
-  ii) "en" signal to gate register with (If none, that reg can't be gated - Or an enable signal should be added if appropereate)
-  iii) Worth Gating? (More than a few flops, or free from gating other regs with same signal)
+    - Steps:
+  -   i) Registers holding their value while idle (and their size = #FFs)
+  -   ii) "en" signal to gate register with (If none, that reg can't be gated - Or an enable signal should be added if appropereate)
+  -   iii) Worth Gating? (More than a few flops, or free from gating other regs with same signal)
 - **Operand isolation (stops the data):** expensive logic (multipliers, wide adders) whose inputs keep moving while idle → freeze its inputs:
   - an enabled input register (often already there → free, and it's clock-gated too)
   - AND the inputs with the enable (N gates of area, +1 logic level, no extra cycle) → re-price that path in Step 8, including the block after the AND
