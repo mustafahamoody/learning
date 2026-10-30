@@ -55,12 +55,18 @@ Tip: if a rule can't be written in plain words, the spec isn't pinned down yet �
 | if/elsif chain, k branches | k |
 | case, N choices | ⌈log₂N⌉ |
 | AND/OR of n inputs | ⌈log₂n⌉ |
+| n-bit `=` against a constant | ⌈log₂n⌉ |
 | n-bit `=` | 1 + ⌈log₂n⌉ |
+| n-bit `< > <= >=` against a constant | 2·⌈log₂n⌉ |
 | n-bit `+ − < >`, `+1` (n = input width; carry out is free) | n |
 | Variable shift, n bits | ⌈log₂n⌉ |
 | N×M multiply | N + M |
 
-Hook: **arithmetic costs its width; everything else costs a log.** (Ripple-carry, pessimistic on purpose. Fast adders ≈ 2·log₂(width).) An `if/else` choosing between '1' and '0' is just the condition's output (no mux). An AND/mux per bit across a bus = N gates of area but only 1 level.
+Hook: **arithmetic costs its width; everything else costs a log.** (Ripple-carry, pessimistic on purpose. Fast adders ≈ 2·log₂(width).)
+
+- A compare against a constant (literal, `constant`, or generic) is cheaper because synthesis always folds the constant in; the ripple price only applies when both sides are signals.
+- An `if/else` choosing between '1' and '0' is just the condition's output (no mux).
+- An AND/mux per bit across a bus = N gates of area but only 1 level.
 
 Tip: do a rough Step 8 early (right after Step 4) so a pipelining decision doesn't surprise you.
 
