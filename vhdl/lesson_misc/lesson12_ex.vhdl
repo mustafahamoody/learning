@@ -2,7 +2,7 @@
 process(clk)
 begin
   if rising_edge(clk) then
-    in_valid_ff1 <= in_valid; -- 1 cycle dleay for prod_reg (so it uses valid data)
+    in_valid_ff1 <= in_valid; -- 1 cycle delay for prod_reg (so it uses valid data)
     in_valid_ff2 <= in_valid_ff1; ---- 2 cycle dleay for acc_reg (so it uses valid data)
     
     if in_valid = '1' then -- Becomes ICG cell (gates both ff clk pins and idle data chnaging)
