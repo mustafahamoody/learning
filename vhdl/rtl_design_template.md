@@ -10,6 +10,7 @@
   - Single bits only. Buses → handshake (hold the data, synchronize a valid flag) or async FIFO.
   - Pulses must last longer than the receiving clock's period (fast → slow: stretch it or use a handshake).
   - No counter needed: logic just waits on the synchronized signal. If two things must line up to the exact cycle, they must be in the same clock domain.
+- **Note: say which clock domain each input is in** (e.g. "`start`, `din` synchronous to `clk`"). Same domain → no synchronizer; STA times it (+in). Other domain → the note above.
 - **Note: after reset is released**, the design ignores inputs for 2–3 cycles (reset synchronizer). Whatever drives the inputs (incl. the testbench) waits ≥ 3 cycles.
 - **Note: say when each input is accepted** (e.g. "`start` only in IDLE; ignored in RUN/DONE") and whether inputs may pause (if yes → add a `din_valid`). Tests will ask these questions anyway.
 
@@ -32,6 +33,8 @@ Tip: if a rule can't be written in plain words, the spec isn't pinned down yet �
 **Step 7: Hardware check.** Sketch it and sanity-check widths and costs (Lesson 7).
 - Datapath: widths, cost of each block, conflicts (can two controls fire together?).
 - FSM: flops = ⌈log₂ states⌉; each output Moore or Mealy; no Mealy output leaves the module; size of the next-state logic.
+  - Sketch the FSM's outputs too: they're decode logic, not flops (`running` → state reg = state bits for RUN; a comparator).
+- List every register in every file (datapath, control's state register, synchronizers). Each one is a flop count and a Step 8 endpoint.
 - Any flag that says "result ready" → check the result's registers have actually been written by then.
 - **Reset:** only control needs a reset (FSM, valid/done, pipeline regs feeding control); the datapath gets cleared by `clr`. **ASIC:** add a reset synchronizer module at the top (async assert, sync deassert), one per clock domain. Every block's reset uses its output.
 
@@ -42,6 +45,8 @@ Tip: if a rule can't be written in plain words, the spec isn't pinned down yet �
 2. For each end point, write out every chain (work backwards from the end point). At every mux, follow both data AND select. (Test: if this signal changes, can D change? Then it's on a path.)
    - A path = a start point + an end point. Same block, different start → separate paths (fine to write on one line if every start is listed).
    - STA assumes every start point might change every cycle, whether or not it really does.
+   - Follow Mealy outputs back to their inputs: `start` → `clr` → every register `clr` touches is a +in path.
+   - Async reset pins aren't D paths (no levels). STA checks the reset release separately (recovery/removal).
 3. Price each block in logic levels (table below), then combine:
    - **Series → add.** Blocks one after another in the same cycle: add their levels.
    - **Merge → max.** When paths meet at a gate or mux, the output is ready when the slowest input is. Keep the max.
@@ -55,6 +60,8 @@ Tip: if a rule can't be written in plain words, the spec isn't pinned down yet �
 | if/elsif chain, k branches | k |
 | case, N choices | ⌈log₂N⌉ |
 | AND/OR of n inputs | ⌈log₂n⌉ |
+| FSM output decode, Moore (s = state bits) | ⌈log₂s⌉ (one-hot: 0, it's the flop's Q) |
+| FSM output decode, Mealy (s state bits + k inputs) | ⌈log₂(s + k)⌉ |
 | n-bit `=` against a constant | ⌈log₂n⌉ |
 | n-bit `=` | 1 + ⌈log₂n⌉ |
 | n-bit `< > <= >=` against a constant | 2·⌈log₂n⌉ |
@@ -65,7 +72,8 @@ Tip: if a rule can't be written in plain words, the spec isn't pinned down yet �
 Hook: **arithmetic costs its width; everything else costs a log.** (Ripple-carry, pessimistic on purpose. Fast adders ≈ 2·log₂(width).)
 
 - A compare against a constant (literal, `constant`, or generic) is cheaper because synthesis always folds the constant in; the ripple price only applies when both sides are signals.
-- An `if/else` choosing between '1' and '0' is just the condition's output (no mux).
+- A mux is free only when both choices are constants ('1'/'0', or two fixed states): each bit is the select, its inverse, or a constant. If either choice is a signal (including a `next_state <= current_state` default), it's a real mux.
+- An output that's true in several states = the OR of their decodes: + ⌈log₂(number of states)⌉.
 - An AND/mux per bit across a bus = N gates of area but only 1 level.
 
 Tip: do a rough Step 8 early (right after Step 4) so a pipelining decision doesn't surprise you.
@@ -117,22 +125,35 @@ A loop sets a hard floor on the period: period ≥ loop logic levels + flop over
 ## Power
 
 **Step 11: Power check.** Dynamic power only burns when things flip. For each block, ask: is it often idle, and does its clock or its input keep moving while idle?
-- **Clock gating (stops the clock):** wide register banks that share an enable and sit idle → write them as enable RTL (`if en then reg <= d; end if;`, no else) and synthesis swaps the hold muxes for one ICG.
+- **Clock gating (stops the clock):** wide register banks that share an enable and sit idle → write them as enable RTL (`if en then reg <= d; end if;`, no else) and synthesis swaps the hold muxes for one ICG (the hold mux disappears: −1 level).
   - Not worth it for single flops, registers that load every cycle, or small FSMs.
-  - A whole idle block → one coarse ICG via a `clock_gate` wrapper (also stops its clock-tree branch). Never `clk and en`.
+  - Never `clk and en`.
   - Check in the flow that the ICGs were actually inserted (F3).
-    Steps:
-  i) Registers holding their value while idle (and their size = #FFs)
-  ii) "en" signal to gate register with (If none, that reg can't be gated - Or an enable signal should be added if appropereate)
-  iii) Worth Gating? (More than a few flops, or free from gating other regs with same signal)
+  - **Coarse gating (manual):** a whole idle block → one ICG you instantiate yourself (guaranteed, and it also stops that block's clock-tree branch). Use it for coarse gating, or if the tool doesn't infer ICGs.
+    - A `clock_gate` entity with two architecture files: `clock_gate_sim.vhd` (latch holds `en` while `clk` = '0', then `clk and latched_en`; `process(all)`) for simulation, and `clock_gate_sky130.vhd` (a component instance of `sky130_fd_sc_hd__dlclkp_1`: `CLK`, `GATE`, `GCLK`) for the flow.
+    - In the top, `gated_clk` drives the block's `clk` port. Control and synchronizers stay on the raw `clk`.
+  - **Steps:**
+    1. Registers that hold their value while idle, and their size (number of FFs).
+    2. The `en` signal to gate each one with. If there's none, that register can't be gated (or add an enable, if it makes sense).
+       - Synchronizers are never gated (no enable, must always be clocked). An input that just stays constant isn't an enable.
+    3. Worth gating? More than a few flops, or free because other registers are already gated with the same signal.
+    4. Add the enable path to Step 8: state → enable decode → ICG. It's its own endpoint and never adds to the data path.
 - **Operand isolation (stops the data):** expensive logic (multipliers, wide adders) whose inputs keep moving while idle → freeze its inputs:
-  - an enabled input register (often already there → free, and it's clock-gated too)
-  - AND the inputs with the enable (N gates of area, +1 logic level, no extra cycle) → re-price that path in Step 8, including the block after the AND
+  - an enabled input register (often already there → free, and it's clock-gated too). If it's new: N FFs + 1 cycle; it loads when the data is valid, and everything downstream uses that enable delayed 1 cycle → redo Step 2.
+  - AND the inputs with the enable (N gates of area, +1 logic level, no extra cycle)
   - at the source (don't drive a bus or read memory when nobody needs it)
   - Not worth it for cheap logic, or logic whose inputs already sit still.
+  - **Steps:**
+    1. List the operations (adders, comparators, multipliers…).
+    2. For each operation: do its inputs change while idle?
+    3. Pick the enable: when the operation's result is used. (This can differ from the clock-gating enable, which is when the register loads.)
+    4. Pick the isolation method (from the list above).
+    5. Re-price in Step 8, two paths:
+       - data → AND → operation → …
+       - state → enable decode → AND → operation → … (can become the new critical path)
 - **Pipelines:** give each stage its own enable = valid delayed to that stage (one flop per stage).
   - Each stage's enable is a control signal crossing the line: it follows the Vertical Line Rule (Step 9), or it's off by one.
-  - Those valid flops need a reset.
+  - Those valid flops need a reset as well.
 - **Other habits:** don't update rarely-read registers every cycle · narrower widths · only reset what needs it · Gray code for constantly-ticking, high-fanout counters.
 - **When:** architecture choices (data movement, memory reads, widths, voltage) first; these habits always; fine-tune only after measuring (power report).
 
