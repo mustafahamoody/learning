@@ -1,0 +1,15 @@
+# LibreLane Flow Config File
+
+meta:
+  flow: VHDLClassic # Tells LibreLane using VHDL version of clasic flow
+
+DESIGN_NAME: avgN_top # Top entity
+VHDL_FILES:  # Design Files (From lowest sub-block to top)
+  - dir::rtl/rst_n_synchronizer.vhd
+  - dir::rtl/avgN_datapath.vhd
+  - dir::rtl/avgN_control.vhd
+  - dir::rtl/avgN_top.vhd
+GHDL_ARGUMENTS: ["--std=08"]
+
+CLOCK_PORT: clk # Name of clk port in top entity
+CLOCK_PERIOD: 20  # clk speed in ns
